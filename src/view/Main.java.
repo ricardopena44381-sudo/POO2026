@@ -3,110 +3,44 @@ package view;
 import model.*;
 
 public class Main {
-
     public static void main(String[] args) {
-        System.out.println("=================================================");
-        System.out.println("   SISTEMA DE GESTION HOTELERA - MAR DE CRISTAL   ");
-        System.out.println("=================================================\n");
+        System.out.println("==================================================");
+        System.out.println("   SISTEMA DE GESTION HOTELERA (Fiel a UML)     ");
+        System.out.println("==================================================\n");
 
-        // 1. Inicialización del Hotel con los valores de ejemplo del taller
-        // TBH = $50.000, TCS = $40.000, TMI = $30.000, PVM = 30%, RCP = $3.500
-        Hotel hotel = new Hotel(
-            "HOTEL-01",
-            "Hotel Mar de Cristal",
-            "Av. el Mar #15-20",
-            8,        // Mínimo 8 pisos
-            50000.0,  // TBH
-            40000.0,  // TCS
-            30000.0,  // TMI
-            30.0,     // PVM (30%)
-            3500.0    // RCP
-        );
+        // 1. Crear el Hotel
+        Hotel hotel = new Hotel("H1", "Hotel Mar de Cristal", "Av. Principal #123");
 
-        System.out.println("-> Hotel registrado exitosamente con 8 pisos.");
+        // 2. Crear Habitaciones según la jerarquía de herencia del diagrama
+        SingleRoom single = new SingleRoom(101, 50000.0);
+        DoubleRoom doubleRoom = new DoubleRoom(201, 70000.0, 20000.0);
+        FamilyRoom family = new FamilyRoom(301, 6, 120000.0, 4, 15000.0);
+        Suite suite = new Suite(801, 150000.0, 50000.0);
 
-        // 2. Registro de Habitaciones (Esquema de la Torre)
-        // Pisos 1 a 3 (Sin recargo de piso - 0%)
-        Room r101 = new SingleRoom("101", 1, false, false, hotel);
-        Room r201 = new DoubleRoom("201", 2, false, false, hotel);
+        // Probar agregación de servicios en habitación
+        Service tvPremium = new Service("S1", "TV Premium", "Canales HD de películas");
+        suite.addService(tvPremium);
 
-        // Pisos 4 a 6 (Recargo de piso - 10%)
-        Room r401 = new DoubleRoom("401", 4, true, true, hotel);
-        Room r501 = new FamilyRoom("501", 5, true, true, hotel);
+        // Registrar en el hotel
+        hotel.addRoom(single);
+        hotel.addRoom(doubleRoom);
+        hotel.addRoom(family);
+        hotel.addRoom(suite);
 
-        // Pisos 7 a 8 (Recargo de piso - 20%)
-        Room r801 = new Suite("801", 8, true, hotel); // Suite en piso superior con vista al mar y TV Premium
+        System.out.println("-> Hotel y habitaciones creadas exitosamente.");
 
-        System.out.println("-> Habitaciones registradas según el esquema de la torre.");
+        // 3. Crear Huésped
+        Guest guest = new Guest("G1", "Ana Gómez", "10203040", "3001234567", "ana@email.com");
 
-        // 3. Registro de Huéspedes
-        Guest guest1 = new Guest("G-001", "Ana Gómez", "1020304050", "3001234567", "ana.gomez@email.com");
-        Guest guest2 = new Guest("G-002", "Carlos Pérez", "9876543210", "3109876543", "carlos.perez@email.com");
+        // 4. Crear Reserva y Polimorfismo en calculateTotal()
+        Reservation res = new Reservation("RES-100", guest, suite, 2, 3);
+        System.out.println("Costo total calculado para la Suite (3 noches): $" + res.calculateTotal());
 
-        System.out.println("-> Huéspedes registrados en el sistema.\n");
-
-        // 4. Verificación de Cálculos Tarifarios (Ejemplo consolidado del taller)
-        System.out.println("--- PRUEBA 1: VERIFICACION DE TARIFAS Y RECARGOS (Piso 8, Vista al Mar, TV Premium, 3 Noches) ---");
-        System.out.println("Habitación 801 (Suite) | Ocupantes: 2 | Noches: 3");
-        Reservation resSuite = new Reservation("RES-001", guest1, r801, 2, 3);
-        double totalSuite = resSuite.calculateTotalCost();
-        
-        System.out.println("Costo total calculado: $" + totalSuite);
-        System.out.println("Costo total esperado  : $532.500,0 (RVM=$15.000, RPI=$3.000, RCP=$3.500 -> TBA=$71.500)\n");
-
-        System.out.println("--- PRUEBA 2: CONFIRMACIÓN Y COMPROBANTE ---");
-        ReservationConfirmation conf1 = resSuite.confirm(hotel);
-        System.out.println("Reserva confirmada con éxito.");
-        System.out.println("Número de Comprobante: " + conf1.getId());
-        System.out.println("Total registrado en comprobante: $" + conf1.getTotalCost() + "\n");
-
-        System.out.println("--- PRUEBA 3: CONSULTA DE COMPROBANTE ---");
-        System.out.println("Buscando comprobante '" + conf1.getId() + "'...");
-        hotel.findConfirmation(conf1.getId()).ifPresentOrElse(
-            c -> System.out.println("Comprobante encontrado: Reservante = " + c.getGuestName() + " | Habitación = " + c.getRoomNumber() + " | Total = $" + c.getTotalCost()),
-            () -> System.out.println("Comprobante no encontrado.")
-        );
-        System.out.println();
-
-        System.out.println("--- PRUEBA 4: CANCELACIÓN DE RESERVA ---");
-        resSuite.cancel();
-        System.out.println("Estado de la reserva RES-001 tras cancelación: " + resSuite.getStatus());
-        System.out.println("El comprobante sigue existiendo en el hotel: " + hotel.findConfirmation(conf1.getId()).isPresent() + "\n");
-
-        // 5. Manejo de Excepciones y Reglas de Negocio Violadas
-        System.out.println("--- PRUEBA 5: CONTROL DE EXCEPCIONES Y REGLAS DE NEGOCIO ---");
-
-        // Caso A: Intentar ubicar una Suite fuera de los dos pisos superiores
-        try {
-            System.out.print("[Caso A] Ubicar Suite en piso 2: ");
-            Room suiteInvalida = new Suite("202", 2, true, hotel);
-        } catch (DomainException e) {
-            System.out.println("EXCEPCION CONTROLADA -> " + e.getMessage());
-        }
-
-        // Caso B: Exceder la capacidad de la habitación (SingleRoom para 3 personas)
-        try {
-            System.out.print("[Caso B] Exceder capacidad en Single Room (3 personas): ");
-            Reservation resInvalida = new Reservation("RES-002", guest2, r101, 3, 2);
-        } catch (DomainException e) {
-            System.out.println("EXCEPCION CONTROLADA -> " + e.getMessage());
-        }
-
-        // Caso C: Reserva con 0 noches
-        try {
-            System.out.print("[Caso C] Reserva con 0 noches: ");
-            Reservation resNochesInvalidas = new Reservation("RES-003", guest2, r201, 1, 0);
-        } catch (DomainException e) {
-            System.out.println("EXCEPCION CONTROLADA -> " + e.getMessage());
-        }
-
-        // Caso D: Buscar un comprobante inexistente
-        System.out.print("[Caso D] Buscar comprobante inexistente: ");
-        boolean existe = hotel.findConfirmation("CONF-INEXISTENTE").isPresent();
-        System.out.println("¿Encontrado?: " + existe);
-
-        System.out.println("\n=================================================");
-        System.out.println("   VALIDACION COMPLETADA Y PRUEBAS CONCLUIDAS    ");
-        System.out.println("=================================================");
+        // 5. Confirmar Reserva y Generar Comprobante (Voucher)
+        Voucher voucher = res.confirm();
+        System.out.println("Reserva confirmada.");
+        System.out.println("ID Comprobante (Voucher): " + voucher.getId());
+        System.out.println("Monto en comprobante     : $" + voucher.getTotalValue());
+        System.out.println("\n==================================================");
     }
 }
