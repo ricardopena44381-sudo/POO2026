@@ -1,0 +1,14 @@
+package view;
+
+import model.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Hotel hotel = new Hotel("Hotel Mar de Cristal");
+        Room suite = new Suite("801", 8, true, 50000, 76000, 30000);
+        Guest guest = new Guest("Ana Gomez", "12345678");
+
+        Reservation res = new Reservation(guest, suite, 3, 2);
+        System.out.println("Costo total de la reserva: $" + res.getReservationCost());
+    }
+}
