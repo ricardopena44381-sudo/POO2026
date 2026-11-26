@@ -1,36 +1,78 @@
-+---------------------------------------------------------------+
-|                    <<abstract>>                               |
-|                       Shape                                   |
-+---------------------------------------------------------------+
-| - id: String                                                  |
-| - x: double                                                   |
-| - y: double                                                   |
-+---------------------------------------------------------------+
-| + Shape(id: String, x: double, y: double)                     |
-| + getId(): String                                             |
-| + setId(id: String): void                                     |
-| + getX(): double                                              |
-| + setX(x: double): void                                       |
-| + getY(): double                                              |
-| + setY(y: double): void                                       |
-| + {abstract} calculateArea(): double                          |
-| + {abstract} calculatePerimeter(): double                     |
-+---------------------------------------------------------------+
-       ▲               ▲               ▲               ▲               ▲
-       │               │               │               │               │
-       │ (Herencia)    │               │               │               │
-+--------------+ +---------------+ +---------------+ +-------------+ +---------------+
-|   Square     | |   Rectangle   | |   Triangle    | |   Circle    | |    Ellipse    |
-+--------------+ +---------------+ +---------------+ +-------------+ +---------------+
-| - side: double| | - width: double| | - sideA: double| | - radius:   | | - majorRadius:|
-|              | | - height:double| | - sideB: double| |   double    | | - minorRadius:|
-+--------------+ +---------------+ | - sideC: double| +-------------+ +---------------+
-| + Square(...) | | + Rectangle(..)| +---------------+ | + Circle(...) | | + Ellipse(...) |
-| + getSide()  | | + getWidth()  | | + Triangle(..)| | + getRadius() | | + getMajorRad()|
-| + setSide()  | | + getHeight() | | + getSideA()  | | + setRadius() | | + getMinorRad()|
-| + calcArea() | | + setWidth()  | | + getSideB()  | | + calcArea()  | | + setRadii()  |
-| + calcPerim()| | + setHeight() | | + getSideC()  | | + calcPerim() | | + calcArea()  |
-|              | | + calcArea()  | | + setSides()  | |             | | + calcPerim() |
-|              | | + calcPerim() | | + calcArea()  | |             | |               |
-|              | |               | | + calcPerim() | |             | |               |
-+--------------+ +---------------+ +---------------+ +-------------+ +---------------+
+classDiagram
+    direction TB
+
+    class Shape {
+        <<abstract>>
+        - String id
+        - double x
+        - double y
+        + Shape(String id, double x, double y)
+        + String getId()
+        + void setId(String id)
+        + double getX()
+        + void setX(double x)
+        + double getY()
+        + void setY(double y)
+        + calculateArea()* double
+        + calculatePerimeter()* double
+    }
+
+    class Square {
+        - double side
+        + Square(String id, double x, double y, double side)
+        + double getSide()
+        + void setSide(double side)
+        + double calculateArea()
+        + double calculatePerimeter()
+    }
+
+    class Rectangle {
+        - double width
+        - double height
+        + Rectangle(String id, double x, double y, double width, double height)
+        + double getWidth()
+        + void setWidth(double width)
+        + double getHeight()
+        + void setHeight(double height)
+        + double calculateArea()
+        + double calculatePerimeter()
+    }
+
+    class Triangle {
+        - double sideA
+        - double sideB
+        - double sideC
+        + Triangle(String id, double x, double y, double sideA, double sideB, double sideC)
+        + double getSideA()
+        + double getSideB()
+        + double getSideC()
+        + void setSides(double sideA, double sideB, double sideC)
+        + double calculateArea()
+        + double calculatePerimeter()
+    }
+
+    class Circle {
+        - double radius
+        + Circle(String id, double x, double y, double radius)
+        + double getRadius()
+        + void setRadius(double radius)
+        + double calculateArea()
+        + double calculatePerimeter()
+    }
+
+    class Ellipse {
+        - double majorRadius
+        - double minorRadius
+        + Ellipse(String id, double x, double y, double majorRadius, double minorRadius)
+        + double getMajorRadius()
+        + double getMinorRadius()
+        + void setRadii(double majorRadius, double minorRadius)
+        + double calculateArea()
+        + double calculatePerimeter()
+    }
+
+    Shape <|-- Square
+    Shape <|-- Rectangle
+    Shape <|-- Triangle
+    Shape <|-- Circle
+    Shape <|-- Ellipse
