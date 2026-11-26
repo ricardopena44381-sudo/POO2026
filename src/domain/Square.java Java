@@ -1,0 +1,31 @@
+package domain;
+
+public class Square extends Shape {
+    private double side;
+
+    public Square(String id, double x, double y, double side) {
+        super(id, x, y);
+        setSide(side);
+    }
+
+    public double getSide() {
+        return side;
+    }
+
+    public void setSide(double side) {
+        if (side <= 0) {
+            throw new IllegalArgumentException("Square side must be greater than zero.");
+        }
+        this.side = side;
+    }
+
+    @Override
+    public double calculateArea() {
+        return side * side;
+    }
+
+    @Override
+    public double calculatePerimeter() {
+        return 4 * side;
+    }
+}
